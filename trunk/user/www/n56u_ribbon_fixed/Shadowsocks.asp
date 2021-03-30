@@ -240,7 +240,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				showhide_div('row_v2_tls', 1);
 				//showhide_div('row_tj_tls_host', 1);
 				showhide_div('row_ssp_insecure', 1);
-			} else if (b == "v2ray") {
+			} else if (b == "v2ray" || b == "xray") {
 				switch_v2_type();
 				showhide_div('row_v2_aid', 1);
 				showhide_div('row_v2_vid', 1);
@@ -739,7 +739,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				document.getElementById("ss_method").value = getProperty(ss, 'encrypt_method', 'none');
 				document.getElementById("ss_obfs").value = getProperty(ss, 'obfs', 'plain');
 				document.getElementById("ss_obfs_param").value = getProperty(ss, 'obfs_param', '');
-			} else if (type == "v2ray") {
+			} else if (type == "v2ray" || type == "xray") {
 				var transport = getProperty(ss, 'transport', 'tcp');
 				document.getElementById("ssp_insecure").value = getProperty(ss, 'insecure', 0);
 				document.getElementById("ssp_insecure").checked =  document.getElementById("ssp_insecure").value != 0;				
@@ -943,7 +943,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 			var s = document.getElementById(urlname + '-status');
 			if (!s)
 				return false;
-			var ssrurl = prompt("在这里黏贴配置链接 ssr:// | ss:// | vmess:// | trojan://", "");
+			var ssrurl = prompt("在这里黏贴配置链接 ssr:// | ss:// | vmess:// | vless:// | trojan://", "");
 			if (ssrurl == null || ssrurl == "") {
 				s.innerHTML = "<font color='red'>用户取消</font>";
 				return false;
@@ -952,7 +952,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 			//var ssu = ssrurl.match(/ssr:\/\/([A-Za-z0-9_-]+)/i);
 			var ssu = ssrurl.split('://');
 			//console.log(ssu.length);
-			if ((ssu[0] != "ssr" && ssu[0] != "ss" && ssu[0] != "vmess" && ssu[0] != "trojan") || ssu[1] == "") {
+			if ((ssu[0] != "ssr" && ssu[0] != "ss" && ssu[0] != "vmess" && ssu[0] != "vless" && ssu[0] != "trojan") || ssu[1] == "") {
 				s.innerHTML = "<font color='red'>无效格式</font>";
 				return false;
 			}
@@ -1082,6 +1082,49 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				}
 				s.innerHTML = "<font color='green'>导入V2ray配置信息成功</font>";
 				return false;
+			} else if (ssu[0] == "vless") {
+				var sstr = b64DecodeUnicode(ssu[1]);
+				console.log(sstr);
+				var ploc = sstr.indexOf("/?");
+				document.getElementById('ssp_type').value = "xray";
+				document.getElementById('ssp_type').dispatchEvent(event);
+				var url0, param = "";
+				if (ploc > 0) {
+					url0 = sstr.substr(0, ploc);
+					param = sstr.substr(ploc + 2);
+				}
+				var ssm = JSON.parse(sstr);
+				document.getElementById('ssp_name').value = ssm.ps;
+				document.getElementById('ssp_server').value = ssm.add;
+				document.getElementById('ssp_prot').value = ssm.port;
+				document.getElementById('v2_alter_id').value = ssm.aid;
+				document.getElementById('v2_vmess_id').value = ssm.id;
+				if (ssm.net == "tcp") {
+					document.getElementById('v2_tcp_guise').value = ssm.type;
+					document.getElementById('v2_http_host').value = ssm.host;
+					document.getElementById('v2_http_path').value = ssm.path;
+				} else {
+					document.getElementById('v2_kcp_guise').value = ssm.type;
+				}
+				document.getElementById('v2_transport').value = ssm.net;
+				document.getElementById('v2_transport').dispatchEvent(event);
+				if (ssm.net == "ws") {
+					document.getElementById('v2_ws_host').value = ssm.host;
+					document.getElementById('v2_ws_path').value = ssm.path;
+				}
+				if (ssm.net == "h2") {
+					document.getElementById('v2_h2_host').value = ssm.host;
+					document.getElementById('v2_h2_path').value = ssm.path;
+				}
+				if (ssm.tls == "tls") {
+					document.getElementById('v2_tls').value = 1;
+					document.getElementById('v2_tls').checked = true;
+					document.getElementById('ssp_insecure').value = 1;
+					document.getElementById('ssp_insecure').checked = true;
+					document.getElementById('ssp_tls_host').value = ssm.host;
+				}
+				s.innerHTML = "<font color='green'>导入Xray配置信息成功</font>";
+				return false;
 			}
 		}
 		//-----------导入链接结束
@@ -1178,7 +1221,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 					password: document.getElementById("ss_password").value,
 					coustom: "1",
 				}
-			} else if (type == "v2ray") {
+			} else if (type == "v2ray" || type == "xray") {
 				var DataObj = {
 					type: document.getElementById("ssp_type").value,
 					alias: document.getElementById("ssp_name").value,
@@ -1779,6 +1822,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 																	<option value="ssr">SSR</option>
 																	<option value="trojan">Trojan</option>
 																	<option value="v2ray">V2ray</option>
+																	<option value="xray">Xray</option>
 																	<option value="socks5">SOCKS5</option>
 																</select>
 															</td>
