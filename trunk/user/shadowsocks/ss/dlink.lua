@@ -131,9 +131,62 @@ local function processData(szType, content)
 		end
 		result.alias = result.alias .. base64Decode(params.remarks)
 	elseif szType == 'vmess' then
-	local content2 = "[[" .. content .. "]]"
+	        local content2 = "[[" .. content .. "]]"
 		local info = cjson.decode(content)
-        result.type = 'v2ray'
+                result.type = 'v2ray'
+		result.server = info.add
+		result.server_port = info.port
+		result.transport = info.net
+		result.alter_id = info.aid
+		result.vmess_id = info.id
+		result.alias = info.ps
+		result.network = info.net
+		-- result.mux = 1
+		-- result.concurrency = 8
+		if info.net == 'ws' then
+			result.ws_host = info.host
+			result.ws_path = info.path
+		end
+		if info.net == 'h2' then
+			result.h2_host = info.host
+			result.h2_path = info.path
+		end
+		if info.net == 'tcp' then
+			if info.type and info.type ~= "http" then
+				info.type = "none"
+			end
+			result.tcp_guise = info.type
+			result.http_host = info.host
+			result.http_path = info.path
+		end
+		if info.net == 'kcp' then
+			result.kcp_guise = info.type
+			result.mtu = 1350
+			result.tti = 50
+			result.uplink_capacity = 5
+			result.downlink_capacity = 20
+			result.read_buffer_size = 2
+			result.write_buffer_size = 2
+		end
+		if info.net == 'quic' then
+			result.quic_guise = info.type
+			result.quic_key = info.key
+			result.quic_security = info.securty
+		end
+		if info.security then
+			result.security = info.security
+		end
+		if info.tls == "tls" or info.tls == "1" then
+			result.tls = "1"
+			result.tls_host = info.host
+			result.insecure = 1
+		else
+			result.tls = "0"
+		end
+	elseif szType == 'vless' then
+	        local content2 = "[[" .. content .. "]]"
+		local info = cjson.decode(content)
+                result.type = 'v2ray'
 		result.server = info.add
 		result.server_port = info.port
 		result.transport = info.net
