@@ -186,7 +186,7 @@ local function processData(szType, content)
 	elseif szType == 'vless' then
 	        local content2 = "[[" .. content .. "]]"
 		local info = cjson.decode(content)
-                result.type = 'v2ray'
+                result.type = 'xray'
 		result.server = info.add
 		result.server_port = info.port
 		result.transport = info.net
