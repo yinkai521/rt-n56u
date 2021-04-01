@@ -37,7 +37,7 @@ log = {
 	} or nil,
 	-- 传出连接
 	outbound = {
-		protocol = "vmess",
+		protocol = "vless",
 		settings = {
 			vnext = {
 				{
@@ -46,8 +46,9 @@ log = {
 					users = {
 						{
 							id = server.vmess_id,
-							alterId = tonumber(server.alter_id),
-							security = server.security
+							flow = "xtls-rprx-direct",--写死
+							level = tonumber(server.alter_id),
+							encryption = server.security
 						}
 					}
 				}
@@ -56,19 +57,29 @@ log = {
 	-- 底层传输配置
 		streamSettings = {
 			network = server.transport,
-			security = (server.tls == '1') and "tls" or "none",
-			tlsSettings = {allowInsecure = (server.insecure ~= "0") and true or false,serverName=server.tls_host,},
-		tcpSettings = (server.transport == "tcp") and {
-			header = {
-				type = server.tcp_guise,
-				request = {
-					path = server.http_path or {"/"},
-					headers = {
-						Host = server.http_host or {}
-					}
-				} or {}
-			}
-        } or nil,
+			security = (server.tls == '1') and "tls" or ((server.tls == '2') and "xtls" or "none"),
+			tlsSettings = (server.tls == '1') and 
+			{
+				allowInsecure = (server.insecure ~= "0") and true or false,
+				serverName=server.tls_host,
+			} or nil,
+
+			xtlsSettings = (server.tls == '2') and
+			{
+				serverName = server.tls_host,
+			} or nil,
+
+		    tcpSettings = (server.transport == "tcp") and {
+				header = {
+					type = server.tcp_guise,
+					request = {
+						path = server.http_path or {"/"},
+						headers = {
+							Host = server.http_host or {}
+						}
+					} or {}
+				}
+			} or nil,
 			kcpSettings = (server.transport == "kcp") and {
 				mtu = tonumber(server.mtu),
 				tti = tonumber(server.tti),
