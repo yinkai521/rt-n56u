@@ -62,16 +62,16 @@ log = {
 			tlsSettings = (server.tls == '1') and 
 			{
 				allowInsecure = (server.insecure ~= "0") and true or false,
-				serverName=server.tls_host,
+				serverName=server.tls_host
 			} or nil,
 
 			xtlsSettings = (server.tls == '2') and
 			{
 				allowInsecure = (server.insecure ~= "0") and true or false,
-				serverName = server.tls_host,
+				serverName = server.tls_host
 			} or nil,
 
-		    tcpSettings = (server.transport == "tcp" and server.tls != '2') and {
+		    tcpSettings = (server.transport == "tcp" and server.tls ~= '2') and {
 				header = {
 					type = server.tcp_guise, --伪装
 					request = {
