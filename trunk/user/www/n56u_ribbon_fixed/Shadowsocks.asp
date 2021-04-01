@@ -76,11 +76,9 @@
 			}
 			}); 
 			$j("#v2_tls").change(function() { 
-			if($j("#v2_tls").is(':checked')){
-			document.getElementById('v2_tls').value=1;
+			if(document.getElementById('v2_tls').value != '0'){
 			showhide_div('row_tj_tls_host', 1);
-			}else{
-			document.getElementById('v2_tls').value=0;
+			}else{			
 			showhide_div('row_tj_tls_host', 0);
 			}
 			});
@@ -689,8 +687,8 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 			document.getElementById("v2_tcp_guise").value = 'none';
 			document.getElementById("v2_http_host").value = '';
 			document.getElementById("v2_http_path").value = '';
-			document.getElementById("v2_tls").value = 0;
-			document.getElementById("v2_tls").checked = false;
+			document.getElementById("v2_tls").value = '0';
+			//document.getElementById("v2_tls").checked = false;
 			document.getElementById("ssp_tls_host").value = '';
 			//"v2 tcp"
 			document.getElementById("v2_kcp_guise").value = 'none';
@@ -752,8 +750,8 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				document.getElementById("v2_tcp_guise").value = getProperty(ss, 'tcp_guise', 'none');
 				document.getElementById("v2_http_host").value = getProperty(ss, 'http_host', '');
 				document.getElementById("v2_http_path").value = getProperty(ss, 'http_path', '');
-				document.getElementById("v2_tls").value = getProperty(ss, 'tls', 0);
-				document.getElementById("v2_tls").checked =  document.getElementById("v2_tls").value != 0;
+				document.getElementById("v2_tls").value = getProperty(ss, 'tls', '0');
+				//document.getElementById("v2_tls").checked =  document.getElementById("v2_tls").value != 0;
 				document.getElementById("ssp_tls_host").value = getProperty(ss, 'tls_host', '');
 				if (transport == "kcp") {
 					document.getElementById("v2_kcp_guise").value = getProperty(ss, 'kcp_guise', 'none');
@@ -777,8 +775,8 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 			} else if (type == "trojan") {
 				document.getElementById("ssp_insecure").value = getProperty(ss, 'insecure', 0);
 				document.getElementById("ssp_insecure").checked =  document.getElementById("ssp_insecure").value != 0;
-				document.getElementById("v2_tls").value = getProperty(ss, 'tls', 0);
-				document.getElementById("v2_tls").checked =  document.getElementById("v2_tls") != 0;
+				document.getElementById("v2_tls").value = getProperty(ss, 'tls', '0');
+				//document.getElementById("v2_tls").checked =  document.getElementById("v2_tls") != 0;
 				document.getElementById("ssp_tls_host").value = getProperty(ss, 'tls_host', '');
 			} else if (type == "socks5") {
 				//
@@ -1074,8 +1072,8 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 					document.getElementById('v2_h2_path').value = ssm.path;
 				}
 				if (ssm.tls == "tls") {
-					document.getElementById('v2_tls').value = 1;
-					document.getElementById('v2_tls').checked = true;
+					document.getElementById('v2_tls').value = '1';
+					//document.getElementById('v2_tls').checked = true;
 					document.getElementById('ssp_insecure').value = 1;
 					document.getElementById('ssp_insecure').checked = true;
 					document.getElementById('ssp_tls_host').value = ssm.host;
@@ -1117,8 +1115,8 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 					document.getElementById('v2_h2_path').value = ssm.path;
 				}
 				if (ssm.tls == "tls") {
-					document.getElementById('v2_tls').value = 1;
-					document.getElementById('v2_tls').checked = true;
+					document.getElementById('v2_tls').value = '2';
+					//document.getElementById('v2_tls').checked = true;
 					document.getElementById('ssp_insecure').value = 1;
 					document.getElementById('ssp_insecure').checked = true;
 					document.getElementById('ssp_tls_host').value = ssm.host;
@@ -1993,7 +1991,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 														</tr>
 														<!--V2RAY-->
 														<tr id="row_v2_aid" style="display:none;">
-															<th width="50%">AlterId</th>
+															<th width="50%">AlterId(Level)</th>
 															<td>
 																<input type="text" class="input" size="15"
 																	name="v2_alter_id" id="v2_alter_id"
@@ -2001,7 +1999,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 															</td>
 														</tr>
 														<tr id="row_v2_vid" style="display:none;">
-															<th width="50%">VmessId (UUID)</th>
+															<th width="50%">VmessId/VlessId (UUID)</th>
 															<td>
 																<input type="text" class="input" size="15"
 																	name="v2_vmess_id" id="v2_vmess_id"
@@ -2192,19 +2190,22 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 														<tr id="row_ssp_insecure" style="display:none;">
 															<th>allowInsecure</th>
 															<td>
-																<input type="checkbox" name="ssp_insecure" id="ssp_insecure" >
-
+																<input type="checkbox" name="ssp_insecure" id="ssp_insecure" >		
 															</td>
 														</tr>
 														<tr id="row_v2_tls" style="display:none;">
-															<th>TLS</th>
+															<th>TLS/XTLS</th>
 															<td>
-																<input type="checkbox" name="v2_tls" id="v2_tls" >
-
+																<select name="v2_tls" id="v2_tls" class="input" style="width: 200px;">
+																	<option value="0">未配置</option>
+																	<option value="1">tls</option>
+																	<option value="2">xtls</option>
+																</select>
+																
 															</td>
 														</tr>
 														<tr id="row_tj_tls_host" style="display:none;">
-															<th>TLS Host</th>
+															<th>TLS/XTLS Host</th>
 															<td>
 																<input type="text" class="input" size="15"
 																	name="ssp_tls_host" id="ssp_tls_host"
