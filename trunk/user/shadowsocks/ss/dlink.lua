@@ -184,58 +184,86 @@ local function processData(szType, content)
 			result.tls = "0"
 		end
 	elseif szType == 'vless' then
-	        local content2 = "[[" .. content .. "]]"
-		local info = cjson.decode(content)
-                result.type = 'xray'
-		result.server = info.add
-		result.server_port = info.port
-		result.transport = info.net
-		result.alter_id = info.aid
-		result.vmess_id = info.id
-		result.alias = info.ps
-		result.network = info.net
-		-- result.mux = 1
-		-- result.concurrency = 8
-		if info.net == 'ws' then
-			result.ws_host = info.host
-			result.ws_path = info.path
+		local idx_sp = 0
+		local alias = ""
+		if content:find("#") then
+			idx_sp = content:find("#")
+			alias = content:sub(idx_sp + 1, -1)
 		end
-		if info.net == 'h2' then
-			result.h2_host = info.host
-			result.h2_path = info.path
-		end
-		if info.net == 'tcp' then
-			if info.type and info.type ~= "http" then
-				info.type = "none"
+		local info = content:sub(1, idx_sp - 1)
+		local hostInfo = split(info, "@")
+		local host = split(hostInfo[2], ":")
+		local userinfo = hostInfo[1]
+		local password = userinfo		
+		result.alias = UrlDecode(alias)
+		result.type = "xray"
+		result.server = host[1]
+		-- 按照官方的建议 默认验证ssl证书
+		result.insecure = "0"
+		result.security = "none"
+		result.tls = "1"
+		if host[2]:find("?") then
+			local query = split(host[2], "?")
+			result.server_port = query[1]
+			local params = {}
+			for _, v in pairs(split(query[2], '&')) do
+				local t = split(v, '=')
+				params[t[1]] = t[2]
 			end
-			result.tcp_guise = info.type
-			result.http_host = info.host
-			result.http_path = info.path
-		end
-		if info.net == 'kcp' then
-			result.kcp_guise = info.type
-			result.mtu = 1350
-			result.tti = 50
-			result.uplink_capacity = 5
-			result.downlink_capacity = 20
-			result.read_buffer_size = 2
-			result.write_buffer_size = 2
-		end
-		if info.net == 'quic' then
-			result.quic_guise = info.type
-			result.quic_key = info.key
-			result.quic_security = info.securty
-		end
-		if info.security then
-			result.security = info.security
-		end
-		if info.tls == "tls" or info.tls == "1" then
-			result.tls = "1"
-			result.tls_host = info.host
-			result.insecure = 1
+			
+			
+			result.transport = params.type --vless的传输方式tcp/kcp/ws/http/quic
+			result.network = params.type
+			
+			if result.transport == 'ws' then
+				result.ws_host = params.host
+				result.ws_path = params.path
+			end
+			if result.transport == 'h2' then
+				result.h2_host = params.host
+				result.h2_path = params.path
+			end
+			if result.transport == 'tcp' then
+				if params.type and params.type ~= "http" then
+					result.type = "none"
+				end
+				result.tcp_guise = params.type
+				result.http_host = params.host
+				result.http_path = params.path
+			end
+			if result.transport == 'kcp' then
+				result.kcp_guise = params.type
+				result.mtu = 1350
+				result.tti = 50
+				result.uplink_capacity = 5
+				result.downlink_capacity = 20
+				result.read_buffer_size = 2
+				result.write_buffer_size = 2
+			end
+			if result.transport == 'quic' then
+				result.quic_guise = params.type
+				result.quic_key = params.key
+				result.quic_security = params.security
+			end
+			if params.encryption then
+				result.security = params.encryption --vless security默认none
+			end
+			if params.security == "tls" or params.security == "1" then --传输层security
+				result.tls = "1"
+				result.tls_host = params.host
+				result.insecure = 0
+			elseif params.security == "xtls" or params.security == "2" then
+				result.tls = "2"
+				result.tls_host = params.host
+				result.insecure = 0
+			else
+				result.tls = "0"
+			end
 		else
-			result.tls = "0"
+			result.server_port = host[2]
 		end
+		result.alter_id = 0 --设为level
+		result.vmess_id = password
 	elseif szType == "ss" then
 		local idx_sp = 0
 		local alias = ""
@@ -409,7 +437,7 @@ end
 								if dat[3] then
 									dat3 = "://" .. dat[3]
 								end
-								if dat[1] == 'ss' or dat[1] == 'trojan' then
+								if dat[1] == 'ss' or dat[1] == 'trojan' or dat[1] == 'vless' then
 									result = processData(dat[1], dat[2] .. dat3)
 								else
 									result = processData(dat[1], base64Decode(dat[2]))
