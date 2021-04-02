@@ -47,7 +47,6 @@ log = {
 						{
 							id = server.vmess_id,
 							flow = "xtls-rprx-direct",--写死
-							security = "auto", --写死
 							level = tonumber(server.alter_id),
 							encryption = server.security
 						}
@@ -71,7 +70,7 @@ log = {
 				serverName = server.tls_host
 			} or nil,
 
-		    tcpSettings = (server.transport == "tcp" and server.tls ~= '2') and {
+		        tcpSettings = (server.transport == "tcp" and server.tls ~= '2') and {
 				header = {
 					type = server.tcp_guise, --伪装
 					request = {
