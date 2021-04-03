@@ -225,7 +225,7 @@ local function processData(szType, content)
 			end
 			if result.transport == 'tcp' then
 				if params.type and params.type ~= "http" then
-					result.type = "none"
+					params.type = "none"
 				end
 				result.tcp_guise = params.type
 				result.http_host = params.host
