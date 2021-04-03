@@ -221,7 +221,6 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 			showhide_div('row_s5_password', 0);
 			
 			var b = document.form.ssp_type.value;
-			var c = document.form.v2_tls.value;
 			if (b == "ss") {
 				showhide_div('row_ss_password', 1);
 				showhide_div('row_ss_method', 1);
@@ -248,10 +247,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				showhide_div('row_v2_type', 1);
 				showhide_div('row_v2_tls', 1);
 				showhide_div('row_v2_mux', 1);
-				if(c != "0")
-				{
-					showhide_div('row_tj_tls_host', 1);
-				}
+				//showhide_div('row_tj_tls_host', 1);
 				showhide_div('row_ssp_insecure', 1);
 			} else if (b == "socks5") {
 				showhide_div('row_s5_enable', 1);
