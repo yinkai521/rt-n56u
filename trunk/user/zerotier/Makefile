@@ -1,4 +1,4 @@
-SRC_NAME = ZeroTierOne-1.6.4
+SRC_NAME = ZeroTierOne-1.4.6
 THISDIR = $(shell pwd)
 FLAGS := DEFS=""
 CFLAGS := -O3 -ffunction-sections -fdata-sections
@@ -9,7 +9,8 @@ all: extract_test
 
 extract_test:
 	 if [ ! -d $(SRC_NAME) ] ; then \
-		tar -xf $(SRC_NAME).tar.gz ; \
+		tar xf $(SRC_NAME).tar.gz ; \
+		patch -d $(SRC_NAME) -p1 -i ../0002-remove-pie.patch; \
 	 fi ;
 
 config_test:
