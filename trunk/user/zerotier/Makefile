@@ -8,12 +8,11 @@ all: extract_test
 	$(MAKE) -j$(HOST_NCPU) -C $(SRC_NAME)
 
 extract_test:
-	 (if [ ! -d $(SRC_NAME) ]; then \
+	 if [ ! -d $(SRC_NAME) ] ; then \
 		tar -xf $(SRC_NAME).tar.gz ; \
-	 fi ;)
+	 fi ;
 
 config_test:
-
 clean:
 	if [ -f $(SRC_NAME)/Makefile ] ; then \
 		$(MAKE) -C $(SRC_NAME) distclean ; \
