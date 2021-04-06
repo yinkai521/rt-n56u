@@ -243,11 +243,12 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				showhide_div('row_v2_aid', 1);
 				showhide_div('row_v2_vid', 1);
 				showhide_div('row_v2_security', 1);
+				document.getElementById("v2_security").value = 'none';
 				showhide_div('row_v2_net', 1);
 				showhide_div('row_v2_type', 1);
 				showhide_div('row_v2_tls', 1);
 				showhide_div('row_v2_mux', 1);
-				//showhide_div('row_tj_tls_host', 1);
+				showhide_div('row_tj_tls_host', 1);
 				showhide_div('row_ssp_insecure', 1);
 			} else if (b == "socks5") {
 				showhide_div('row_s5_enable', 1);
@@ -1100,7 +1101,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				document.getElementById('v2_vmess_id').value = password;
 				document.getElementById('v2_alter_id').value = "0";		
 				
-				ploc = sstr.indexOf("/?");
+				ploc = sstr.indexOf("?");
 				if (ploc > 0) {
 					url0 = sstr.substr(0, ploc);
 					param = sstr.substr(ploc + 2);
@@ -1121,7 +1122,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				
 				
 				if (dictvalue(pdict, 'type') == "tcp") {
-					document.getElementById('v2_tcp_guise').value = "none";
+					document.getElementById('v2_tcp_guise').value = "http";
 					document.getElementById('v2_http_host').value = dictvalue(pdict, 'host');
 					document.getElementById('v2_http_path').value = dictvalue(pdict, 'path');
 				} else {
