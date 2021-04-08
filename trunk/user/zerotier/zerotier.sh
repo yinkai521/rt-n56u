@@ -1,12 +1,14 @@
 #!/bin/sh
 #20200426 chongshengB
 PROG=/usr/bin/zerotier-one
+PROGCLI=/usr/bin/zerotier-cli
 config_path="/etc/storage/zerotier-one"
 start_instance() {
 	cfg="$1"
 	echo $cfg
 	port=""
 	args=""
+	moonid="$(nvram get zerotier_moonid)"
 	secret="$(nvram get zerotier_secret)"
 	if [ ! -d "$config_path" ]; then
 		mkdir -p $config_path
@@ -34,8 +36,13 @@ start_instance() {
 	add_join $(nvram get zerotier_id)
 
 	$PROG $args $config_path >/dev/null 2>&1 &
-
+		
 	rules
+	
+	if [ -n "$moonid" ]; then
+		$PROGCLI -D$config_path orbit $moonid $moonid
+		logger -t "zerotier" "orbit moonid $moonid ok!"
+	fi
 }
 
 add_join() {
