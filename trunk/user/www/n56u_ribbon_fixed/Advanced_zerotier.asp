@@ -221,12 +221,17 @@ function showMRULESList(){
 											</td>
 
 										</tr>
-										</tr>
-<tr><th>ZeroTier Network ID</th>
+										
+<tr><th>ZeroTier WorldNetwork ID</th>
 				<td>
 					<input type="text" class="input" name="zerotier_id" id="zerotier_id" style="width: 200px" value="<% nvram_get_x("","zerotier_id"); %>" />
 				</td>
 			</tr>
+<tr><th>ZeroTier MoonNetwork ID</th>
+				<td>
+					<input type="text" class="input" name="zerotier_moonid" id="zerotier_moonid" style="width: 200px" value="<% nvram_get_x("","zerotier_moonid"); %>" />
+				</td>
+			</tr>			
 			<tr>
 											<th width="30%" style="border-top: 0 none;">自动允许客户端NAT</th>
 											<td style="border-top: 0 none;">
