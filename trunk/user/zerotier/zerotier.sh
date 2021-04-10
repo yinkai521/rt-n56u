@@ -1,5 +1,6 @@
 #!/bin/sh
 #20200426 chongshengB
+#20210410 xumng123
 PROG=/usr/bin/zerotier-one
 PROGCLI=/usr/bin/zerotier-cli
 config_path="/etc/storage/zerotier-one"
@@ -118,6 +119,42 @@ stop_zero() {
 	zero_route "del"
 	kill_z
 	rm -rf $config_path
+}
+
+#创建moon节点
+creat_moon(){
+	moonip="$(nvram get zerotiermoon_ip)"
+	#检查是否合法ip
+	regex="\b(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[1-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[1-9])\b"
+	ckStep2=`echo $moonip | egrep $regex | wc -l`
+
+	logger -t "zerotier" "搭建ZeroTier的Moon中转服务器，生成moon配置文件"
+	cd /var/lib/zerotier-one/
+	if [-z "$moonip"]; then
+	#自动获取wanip
+	ip_addr=ifconfig -a ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
+	elif [$ckStep2 -eq 0]; then
+	#不是ip
+	ip_addr=`curl $moonip`    
+	else
+	ip_addr=$moonip
+	fi
+	zerotier-idtool initmoon identity.public > moon.json
+	if sed -i "s/\[\]/\[ \"$ip_addr\/9993\" \]/" moon.json >/dev/null 2>/dev/null; then
+	logger -t "zerotier" "生成moon配置文件成功"
+	else
+	logger -t "zerotier" "生成moon配置文件失败"
+	fi
+
+	logger -t "zerotier" "生成签名文件"
+	zerotier-idtool genmoon moon.json
+	logger -t "zerotier" "创建moons.d文件夹，并把签名文件移动到文件夹内"
+	mkdir moons.d
+	mv ./*.moon ./moons.d/
+	logger -t "zerotier" "重启zerotier-one服务"
+	logger -t "zerotier" "moon节点创建完成"
+	logger -t "请记得将moons.d文件夹拷贝出来用于客户端的配置，路径/var/lib/zerotier-one/"
+
 }
 
 case $1 in
