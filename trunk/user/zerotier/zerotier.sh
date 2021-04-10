@@ -3,6 +3,7 @@
 #20210410 xumng123
 PROG=/usr/bin/zerotier-one
 PROGCLI=/usr/bin/zerotier-cli
+PROGIDT=/usr/bin/zerotier-idtool
 config_path="/etc/storage/zerotier-one"
 start_instance() {
 	cfg="$1"
@@ -11,6 +12,7 @@ start_instance() {
 	args=""
 	moonid="$(nvram get zerotier_moonid)"
 	secret="$(nvram get zerotier_secret)"
+	enablemoonserv="$(nvram get zerotiermoon_enable)"
 	if [ ! -d "$config_path" ]; then
 		mkdir -p $config_path
 	fi
@@ -31,7 +33,7 @@ start_instance() {
 	if [ -n "$secret" ]; then
 		logger -t "zerotier" "找到密匙,正在写入文件,请稍后..."
 		echo "$secret" >$config_path/identity.secret
-		rm -f $config_path/identity.public
+		#rm -f $config_path/identity.public
 	fi
 
 	add_join $(nvram get zerotier_id)
@@ -43,6 +45,14 @@ start_instance() {
 	if [ -n "$moonid" ]; then
 		$PROGCLI -D$config_path orbit $moonid $moonid
 		logger -t "zerotier" "orbit moonid $moonid ok!"
+	fi
+
+
+	if [ -n "$enablemoonserv" ]; then
+		if [ "$enablemoonserv" -eq "1" ]; then
+			logger -t "zerotier" "creat moon start"
+			creat_moon
+		fi
 	fi
 }
 
@@ -124,36 +134,42 @@ stop_zero() {
 #创建moon节点
 creat_moon(){
 	moonip="$(nvram get zerotiermoon_ip)"
+	logger -t "zerotier" "moonip $moonip"
 	#检查是否合法ip
 	regex="\b(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[1-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[1-9])\b"
 	ckStep2=`echo $moonip | egrep $regex | wc -l`
 
 	logger -t "zerotier" "搭建ZeroTier的Moon中转服务器，生成moon配置文件"
-	cd /var/lib/zerotier-one/
-	if [-z "$moonip"]; then
-	#自动获取wanip
-	ip_addr=ifconfig -a ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'
-	elif [$ckStep2 -eq 0]; then
-	#不是ip
-	ip_addr=`curl $moonip`    
+	if [ -z "$moonip" ]; then
+		#自动获取wanip
+		ip_addr=`ifconfig -a ppp0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`
+	#elif [ $ckStep2 -eq 0 ]; then
+		#不是ip
+	#	ip_addr = `curl $moonip`
 	else
-	ip_addr=$moonip
+		ip_addr=$moonip
 	fi
-	zerotier-idtool initmoon identity.public > moon.json
-	if sed -i "s/\[\]/\[ \"$ip_addr\/9993\" \]/" moon.json >/dev/null 2>/dev/null; then
-	logger -t "zerotier" "生成moon配置文件成功"
+	logger -t "zerotier" "moonip $ip_addr"
+	zerotier-idtool initmoon identity.public > $config_path/moon.json
+	if `sed -i "s/\[\]/\[ \"$ip_addr\/9993\" \]/" $config_path/moon.json >/dev/null 2>/dev/null`; then
+		logger -t "zerotier" "生成moon配置文件成功"
 	else
-	logger -t "zerotier" "生成moon配置文件失败"
+		logger -t "zerotier" "生成moon配置文件失败"
 	fi
 
 	logger -t "zerotier" "生成签名文件"
-	zerotier-idtool genmoon moon.json
+	#cd $config_path
+	#pwd
+	$PROGIDT genmoon $config_path/moon.json
 	logger -t "zerotier" "创建moons.d文件夹，并把签名文件移动到文件夹内"
-	mkdir moons.d
-	mv ./*.moon ./moons.d/
-	logger -t "zerotier" "重启zerotier-one服务"
+	if [ ! -d "$config_path/moons.d" ]; then
+		mkdir -p $config_path/moons.d
+	fi
+	
+	#服务器加入moon server
+	mv $config_path/*.moon $config_path/moons.d/
 	logger -t "zerotier" "moon节点创建完成"
-	logger -t "请记得将moons.d文件夹拷贝出来用于客户端的配置，路径/var/lib/zerotier-one/"
+	logger -t "请记得将moons.d文件夹拷贝出来用于客户端的配置"
 
 }
 
