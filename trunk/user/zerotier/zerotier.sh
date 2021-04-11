@@ -22,17 +22,19 @@ start_instance() {
 	fi
 	if [ -z "$secret" ]; then
 		logger -t "zerotier" "设备密匙为空,正在生成密匙,请稍后..."
-		sf="/tmp/zt.$cfg.secret"
-		zerotier-idtool generate "$sf" >/dev/null
+		sf="$config_path/identity.secret"
+		pf="$config_path/identity.public"
+		$PROGIDT generate "$sf" "$pf"  >/dev/null
 		[ $? -ne 0 ] && return 1
 		secret="$(cat $sf)"
-		rm "$sf"
+		#rm "$sf"
 		nvram set zerotier_secret="$secret"
 		nvram commit
 	fi
 	if [ -n "$secret" ]; then
 		logger -t "zerotier" "找到密匙,正在写入文件,请稍后..."
 		echo "$secret" >$config_path/identity.secret
+		$PROGIDT getpublic $config_path/identity.secret >$config_path/identity.public
 		#rm -f $config_path/identity.public
 	fi
 
@@ -150,26 +152,38 @@ creat_moon(){
 		ip_addr=$moonip
 	fi
 	logger -t "zerotier" "moonip $ip_addr"
-	zerotier-idtool initmoon identity.public > $config_path/moon.json
-	if `sed -i "s/\[\]/\[ \"$ip_addr\/9993\" \]/" $config_path/moon.json >/dev/null 2>/dev/null`; then
-		logger -t "zerotier" "生成moon配置文件成功"
-	else
-		logger -t "zerotier" "生成moon配置文件失败"
-	fi
+	if [ -e $config_path/identity.public ]; then
 
-	logger -t "zerotier" "生成签名文件"
-	#cd $config_path
-	#pwd
-	$PROGIDT genmoon $config_path/moon.json
-	logger -t "zerotier" "创建moons.d文件夹，并把签名文件移动到文件夹内"
-	if [ ! -d "$config_path/moons.d" ]; then
-		mkdir -p $config_path/moons.d
+		$PROGIDT initmoon $config_path/identity.public > $config_path/moon.json
+		if `sed -i "s/\[\]/\[ \"$ip_addr\/9993\" \]/" $config_path/moon.json >/dev/null 2>/dev/null`; then
+			logger -t "zerotier" "生成moon配置文件成功"
+		else
+			logger -t "zerotier" "生成moon配置文件失败"
+		fi
+
+		logger -t "zerotier" "生成签名文件"
+		cd $config_path
+		pwd
+		$PROGIDT genmoon $config_path/moon.json
+		[ $? -ne 0 ] && return 1
+		logger -t "zerotier" "创建moons.d文件夹，并把签名文件移动到文件夹内"
+		if [ ! -d "$config_path/moons.d" ]; then
+			mkdir -p $config_path/moons.d
+		fi
+		
+		#服务器加入moon server
+		mv $config_path/*.moon $config_path/moons.d/ >/dev/null 2>&1
+		logger -t "zerotier" "moon节点创建完成"
+
+		zmoonid=`cat moon.json | awk -F "[id]" '/"id"/{print$0}'` >/dev/null 2>&1
+		zmoonid=`echo $zmoonid | awk -F "[:]" '/"id"/{print$2}'` >/dev/null 2>&1
+		zmoonid=`echo $zmoonid | tr -d '"|,'`
+
+		nvram set zerotiermoon_id="$zmoonid"
+		nvram commit
+	else
+		logger -t "zerotier" "identity.public不存在"	
 	fi
-	
-	#服务器加入moon server
-	mv $config_path/*.moon $config_path/moons.d/
-	logger -t "zerotier" "moon节点创建完成"
-	logger -t "请记得将moons.d文件夹拷贝出来用于客户端的配置"
 
 }
 
