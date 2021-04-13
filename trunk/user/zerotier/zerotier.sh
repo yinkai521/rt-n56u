@@ -182,7 +182,7 @@ creat_moon(){
 		nvram set zerotiermoon_id="$zmoonid"
 		nvram commit
 	else
-		logger -t "zerotier" "identity.public不存在"	
+		logger -t "zerotier" "identity.public不存在"
 	fi
 
 }

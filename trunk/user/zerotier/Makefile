@@ -5,7 +5,7 @@ CFLAGS := -O3 -ffunction-sections -fdata-sections
 LDFLAGS := -Wl,--gc-sections,--as-needed
 
 all: extract_test
-	$(MAKE) -j$(HOST_NCPU) -C $(SRC_NAME)
+#	$(MAKE) -j$(HOST_NCPU) -C $(SRC_NAME)
 
 extract_test:
 	 if [ ! -d $(SRC_NAME) ] ; then \
