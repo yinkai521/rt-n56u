@@ -54,6 +54,9 @@ start_instance() {
 		if [ "$enablemoonserv" -eq "1" ]; then
 			logger -t "zerotier" "creat moon start"
 			creat_moon
+		else
+			logger -t "zerotier" "remove moon start"
+			remove_moon
 		fi
 	fi
 }
@@ -77,7 +80,7 @@ rules() {
 	if [ $nat_enable -eq 1 ]; then
 		iptables -t nat -A POSTROUTING -o $zt0 -j MASQUERADE
 		while [ "$(ip route | grep "dev $zt0  proto" | awk '{print $1}')" = "" ]; do
-		sleep 1
+			sleep 1
 	    done
 		ip_segment=`ip route | grep "dev $zt0  proto" | awk '{print $1}'`
 		iptables -t nat -A POSTROUTING -s $ip_segment -j MASQUERADE
@@ -106,13 +109,13 @@ zero_route(){
 		zero_ip=`nvram get zero_ip_x$j`
 		zero_route=`nvram get zero_route_x$j`
 		if [ "$1" = "add" ]; then
-		if [ $route_enable -ne 0 ]; then
-			ip route add $zero_ip via $zero_route dev $zt0
-			echo "$zt0"
+			if [ $route_enable -ne 0 ]; then
+				ip route add $zero_ip via $zero_route dev $zt0
+				echo "$zt0"
+			fi
+		else
+			ip route del $zero_ip via $zero_route dev $zt0
 		fi
-	else
-		ip route del $zero_ip via $zero_route dev $zt0
-	fi
 	done
 }
 
@@ -184,7 +187,17 @@ creat_moon(){
 	else
 		logger -t "zerotier" "identity.public不存在"
 	fi
+}
 
+remove_moon(){
+	zmoonid="$(nvram get zerotiermoon_id)"
+	
+	if [ ! -n "$zmoonid"]; then
+		rm -f $config_path/moons.d/000000$zmoonid.moon
+		rm -f $config_path/moon.json
+		nvram set zerotiermoon_id=""
+		nvram commit
+	fi
 }
 
 case $1 in
