@@ -816,7 +816,7 @@ struct nvram_pair router_defaults[] = {
 	{ "dhcp_dns3_x", "" },
 	{ "dhcp_dnsv6_x", "" },
 	{ "dhcp_wins_x", "" },
-	{ "dhcp_filter_aaa", "0" },
+	{ "dhcp_filter_aaa", "1" },
 	{ "dhcp_min_ttl", "0" },
 	{ "dhcp_verbose", "0" },		/* 0 : quiet, 1: verbose DHCP, 2: verbose DHCPv6, 3: verbose all */
 	{ "dhcp_static_x", "0" },
@@ -993,7 +993,7 @@ struct nvram_pair router_defaults[] = {
 
 #if defined(CONFIG_RALINK_MT7621) || (defined(CONFIG_RALINK_MT7620) && !defined(BOARD_N14U))
 #if defined(USE_MT7615_AP) // hwnat is disabled by default
-	{ "hw_nat_mode", "2" },
+	{ "hw_nat_mode", "4" },
 #else
 	{ "hw_nat_mode", "4" },
 #endif

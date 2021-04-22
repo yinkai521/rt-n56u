@@ -236,9 +236,6 @@ VOID RtmpOsPktReserve(PNDIS_PACKET pNetPkt, UINT len);
 VOID RtmpOsPktProtocolAssign(PNDIS_PACKET pNetPkt);
 VOID RtmpOsPktInfPpaSend(PNDIS_PACKET pNetPkt);
 VOID RtmpOsPktRcvHandle(PNDIS_PACKET pNetPkt);
-#ifdef CONFIG_FAST_NAT_SUPPORT
-VOID RtmpOsPktNatMagicTag(PNDIS_PACKET pNetPkt);
-#endif /*CONFIG_FAST_NAT_SUPPORT*/
 VOID RtmpOsPktInit(PNDIS_PACKET pNetPkt, PNET_DEV pNetDev, UCHAR *buf, USHORT len);
 
 PNDIS_PACKET RtmpOsPktIappMakeUp(PNET_DEV pNetDev, UINT8 *pMac);

@@ -292,37 +292,23 @@ case "$run_mode" in
 		ipset -! flush china
 		ipset -! restore </tmp/china.ipset 2>/dev/null
 		rm -f /tmp/china.ipset
-		if [ $(nvram get ss_chdns) = 1 ]; then
-			chinadnsng_enable_flag=1
-			logger -t "SS" "下载cdn域名文件..."
-			wget --no-check-certificate --timeout=8 -qO - https://gitee.com/bkye/rules/raw/master/cdn.txt > /tmp/cdn.txt
-			if [ ! -f "/tmp/cdn.txt" ]; then
-				logger -t "SS" "cdn域名文件下载失败，可能是地址失效或者网络异常！可能会影响部分国内域名解析了国外的IP！"
-			else
-				logger -t "SS" "cdn域名文件下载成功"
-			fi
-			logger -st "SS" "启动chinadns..."
-			dns2tcp -L"127.0.0.1#5353" -R"$(nvram get tunnel_forward)" >/dev/null 2>&1 &
-			chinadns-ng -b 0.0.0.0 -l 65353 -c $(nvram get china_dns) -t 127.0.0.1#5353 -4 china -M -m /tmp/cdn.txt >/dev/null 2>&1 &
-			sed -i '/no-resolv/d' /etc/storage/dnsmasq/dnsmasq.conf
-			sed -i '/server=127.0.0.1/d' /etc/storage/dnsmasq/dnsmasq.conf
-			cat >> /etc/storage/dnsmasq/dnsmasq.conf << EOF
-no-resolv
-server=127.0.0.1#65353
-EOF
-    		fi
+		dnsstr="$(nvram get tunnel_forward)"
+		dnsserver=$(echo "$dnsstr" | awk -F '#' '{print $1}')
+		#dnsport=$(echo "$dnsstr" | awk -F '#' '{print $2}')
+		logger -st "SS" "启动dns2tcp：5353端口..."
+		dns2tcp -L"127.0.0.1#5353" -R"$dnsstr" >/dev/null 2>&1 &
+		pdnsd_enable_flag=0	
+		logger -st "SS" "开始处理gfwlist..."
 	;;
 	gfw)
-		if [ $(nvram get pdnsd_enable) = 0 ]; then
-			dnsstr="$(nvram get tunnel_forward)"
-			dnsserver=$(echo "$dnsstr" | awk -F '#' '{print $1}')
-			#dnsport=$(echo "$dnsstr" | awk -F '#' '{print $2}')
-			ipset add gfwlist $dnsserver 2>/dev/null
-			logger -st "SS" "启动dns2tcp：5353端口..."
-			dns2tcp -L"127.0.0.1#5353" -R"$dnsstr" >/dev/null 2>&1 &
-			pdnsd_enable_flag=0	
-			logger -st "SS" "开始处理gfwlist..."
-		fi
+		dnsstr="$(nvram get tunnel_forward)"
+		dnsserver=$(echo "$dnsstr" | awk -F '#' '{print $1}')
+		#dnsport=$(echo "$dnsstr" | awk -F '#' '{print $2}')
+		ipset add gfwlist $dnsserver 2>/dev/null
+		logger -st "SS" "启动dns2tcp：5353端口..."
+		dns2tcp -L"127.0.0.1#5353" -R"$dnsstr" >/dev/null 2>&1 &
+		pdnsd_enable_flag=0	
+		logger -st "SS" "开始处理gfwlist..."
 		;;
 	oversea)
 		ipset add gfwlist $dnsserver 2>/dev/null
