@@ -1126,9 +1126,21 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				
 				
 				if (pdict['type'] == "tcp") {
-					document.getElementById('v2_tcp_guise').value = "http";
-					document.getElementById('v2_http_host').value = pdict['host'];
-					document.getElementById('v2_http_path').value = pdict['path'];
+					if (pdict['guise'] != undefined) {
+					    document.getElementById('v2_tcp_guise').value = "http";
+					    document.getElementById('v2_http_host').value = pdict['host'];
+					    if (pdict['path'] != undefined){
+					            document.getElementById('v2_http_path').value = pdict['path'];
+						}
+					    else
+					    	{
+						    document.getElementById('v2_http_path').value = '/';
+						}
+					}
+					else
+					{
+					    document.getElementById('v2_kcp_guise').value = "none";
+					}
 				} else {
 					document.getElementById('v2_kcp_guise').value = "none";
 				}
