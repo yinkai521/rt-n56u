@@ -1104,7 +1104,7 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				ploc = sstr.indexOf("?");
 				if (ploc > 0) {
 					url0 = sstr.substr(0, ploc);
-					param = sstr.substr(ploc + 2);
+					param = sstr.substr(ploc + 1);
 				}
 				var pdict = {};
 				if (param.length > 2) {
