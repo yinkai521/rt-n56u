@@ -1118,39 +1118,40 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				document.getElementById('ssp_type').value = "xray";
 				document.getElementById('ssp_type').dispatchEvent(event);
 						
-				document.getElementById('v2_security').value = dictvalue(pdict, 'encryption');
+				document.getElementById('v2_security').value = pdict['encryption'];
 				
 				
-				if (dictvalue(pdict, 'type') == "tcp") {
+				if (pdict['type'] == "tcp") {
 					document.getElementById('v2_tcp_guise').value = "http";
-					document.getElementById('v2_http_host').value = dictvalue(pdict, 'host');
-					document.getElementById('v2_http_path').value = dictvalue(pdict, 'path');
+					document.getElementById('v2_http_host').value = pdict['host'];
+					document.getElementById('v2_http_path').value = pdict['path'];
 				} else {
 					document.getElementById('v2_kcp_guise').value = "none";
 				}
-				document.getElementById('v2_transport').value = dictvalue(pdict, 'type');
+				document.getElementById('v2_transport').value = pdict['type'];
 				document.getElementById('v2_transport').dispatchEvent(event);
-				if (dictvalue(pdict, 'type') == "ws") {
-					document.getElementById('v2_ws_host').value = dictvalue(pdict, 'host');
-					document.getElementById('v2_ws_path').value = dictvalue(pdict, 'path');
+				
+				if (pdict['type'] == "ws") {
+					document.getElementById('v2_ws_host').value = pdict['host'];
+					document.getElementById('v2_ws_path').value = pdict['path'];
 				}
-				if (dictvalue(pdict, 'type') == "h2") {
-					document.getElementById('v2_h2_host').value = dictvalue(pdict, 'host');
-					document.getElementById('v2_h2_path').value = dictvalue(pdict, 'path');
+				if (pdict['type'] == "h2") {
+					document.getElementById('v2_h2_host').value = pdict['host'];
+					document.getElementById('v2_h2_path').value = pdict['path'];
 				}
-				if (dictvalue(pdict, 'security') == "tls") {
+				if (pdict['security'] == "tls") {
 					document.getElementById('v2_tls').value = '1';
 					//document.getElementById('v2_tls').checked = true;
 					document.getElementById('ssp_insecure').value = 0;
 					document.getElementById('ssp_insecure').checked = false;
-					document.getElementById('ssp_tls_host').value = dictvalue(pdict, 'host');
+					document.getElementById('ssp_tls_host').value = pdict['host'];
 				}
-				if (dictvalue(pdict, 'security') == "xtls") {
+				if (pdict['security'] == "xtls") {
 					document.getElementById('v2_tls').value = '2';
 					//document.getElementById('v2_tls').checked = true;
 					document.getElementById('ssp_insecure').value = 0;
 					document.getElementById('ssp_insecure').checked = false;
-					document.getElementById('ssp_tls_host').value = dictvalue(pdict, 'host');
+					document.getElementById('ssp_tls_host').value = pdict['host'];
 				}
 				s.innerHTML = "<font color='green'>导入Xray配置信息成功</font>";
 				return false;
