@@ -1166,7 +1166,17 @@ setTimeout('document.getElementById("btn_ctime").style.display="none";',1000);
 				if (pdict['security'] == "xtls") {
 					document.getElementById('v2_tls').value = '2';
 					if (pdict['flow'] != undefined) {
-					    document.getElementById('v2_flow').value = pdict['flow'];
+					    if(pdict['flow'] == 'xtls-rprx-direct'){
+					    	document.getElementById('v2_flow').value = '1';
+					    }
+					    else if(pdict['flow'] == 'xtls-rprx-splice'){
+					    	document.getElementById('v2_flow').value = '2';
+					    }
+					    else
+					    {
+					    	document.getElementById('v2_flow').value = '0';
+					    }
+					    
 					}
 					else
 					{
