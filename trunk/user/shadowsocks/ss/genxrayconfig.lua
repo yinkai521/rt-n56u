@@ -46,7 +46,7 @@ log = {
 					users = {
 						{
 							id = server.vmess_id,
-							flow = "xtls-rprx-direct",--写死
+							flow = (server.flow == '1') and "xtls-rprx-direct" or ((server.flow == '2') and "xtls-rprx-splice" or "xtls-rprx-direct"),
 							level = tonumber(server.alter_id),
 							encryption = server.security
 						}
